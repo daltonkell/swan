@@ -59,6 +59,7 @@ def method_003(array):
     """
     return array.resample("6H",
          dim="time", how="mean").mean(axis=1)
+
         
 # one method to run them all (or at least the one you chose)
 def run_method(m, areas, data):
@@ -149,12 +150,12 @@ def main():
 
 def ask_viz():
     """Asks the caller if they would like to visualize the data they have pulled, in addition to seeing just the JSON text output."""
-    response = input("Visualize data [y]/n?")
+    response = input("Visualize data? [y]/n")
     if response == "y":
         diagnostic_viz2.wave_viz()
-        print("Warning print and visualization complete.")
+        print("Warning output printing and visualization complete.")
     else:
-        print("Warning print complete.")
+        print("Warning output printing complete.")
         
 if __name__ == "__main__":
     main()

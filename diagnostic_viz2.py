@@ -50,7 +50,7 @@ def wave_viz(make_heat=True, make_ts=True):
              palette = sns.color_palette("hls", n_colors=31)
              color_num = 0
              xs = [i for i in range(0, len(frame))]
-             # for-loop to deal with multiple lines?
+             # for-loop to deal with multiple lines
              for area in frame.columns:
                  #31 areas
                  ys = frame[area]
