@@ -1,25 +1,16 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Oct 20 11:55:09 2017
-
-@author: dalton
-"""
-
 ### Plotting Polar Coordinates of Wave Direction ###
 
-# imports 
-from datetime import datetime, timedelta, timezone
-import json
-from marshmallow import Schema, fields
+# imports
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import sys
 import xarray as xr
 
 # data needed 
-ds = xr.open_dataset('/home/dalton/PythonCode/swan/swan.nc')
+ds = xr.open_dataset('/home/dalton/swan/swan.nc')
 
 # wave direction xarray slice of main array
 wv_dir = ds['dir']
@@ -80,21 +71,22 @@ def run_method(m, areas, data):
     # make sure the function actually returns something, or downstream it will break!
     print("Finished collecting all areas.")
     return frame
-    
-data1 = run_method(method_003, a, wv_dir) # mean, 6-hr
-data2 = run_method(method_004, a, wv_dir) # mean, 1-day
+
+
+data1 = run_method(method_003, a, wv_dir)  # mean, 6-hr
+data2 = run_method(method_004, a, wv_dir)  # mean, 1-day
 
 
 with sns.axes_style("white"):
     fig1 = plt.figure(figsize=(12, 8), tight_layout=True)
     palette = sns.color_palette("hls", n_colors=31) # 31 areas
-    ax1 = fig1.add_subplot(1,2,1, polar=True)
-    ax2 = fig1.add_subplot(1,2,2)
+    ax1 = fig1.add_subplot(1, 2, 1, polar=True)
+    ax2 = fig1.add_subplot(1, 2, 2)
     color_num = 0
     for area in data2.columns:
         degrees = data1[area]
-        points = np.radians(degrees) # convert to rad
-        times = list(range(0, len(points))) # 5 days
+        points = np.radians(degrees)  # convert to rad
+        times = list(range(0, len(points)))  # 5 days
         ax1.plot(points, times, linestyle="-", marker=".", c=palette[color_num], label="Area {}".format(area))
         ax1.set_theta_zero_location("N")
         sns.kdeplot(degrees, ax=ax2, legend=False)
