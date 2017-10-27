@@ -13,8 +13,10 @@ import seaborn as sns
 # import script that's calling this script
 import wv_json
 
+chosen_method, stat = wv_json.chosen_method, wv_json.stat
+
 def wv_viz(make_heat=True, make_ts=True):
-    """This function operates in conjuntion with the schema_high_level_func.py script. After importing that script, it calls on the run_method() function to return a pandas DataFrame. From there, it will generate a heatplot and a time series spahgetti plot.
+    """This function operates in conjuntion with the wv_json.py script. After importing that script, it calls on the run_method() function to return a pandas DataFrame. From there, it will generate a heatplot and a time series spahgetti plot.
     Arguments:
         make_heat: if True, generates a heatmap of the maximum wave heights for each area for each 6-hr time interval (deafult=True).
         make_ts: Makes a spaghetti plot ("time series") for area over the 17 time intervals (default=True).
@@ -22,7 +24,7 @@ def wv_viz(make_heat=True, make_ts=True):
     
 # Next we want to output a 17x30 array of max heights for each 6 hour time period (). There are 30 areas. 
   
-    frame = wv_json.run_method(wv_json.m, wv_json.a, wv_json.hs)
+    frame = wv_json.run_method(chosen_method, wv_json.a, wv_json.hs)
     print("Areas: ", frame.columns)
     
     ## --- create a 30x17 heatmap of the max heights --- ##
@@ -32,10 +34,10 @@ def wv_viz(make_heat=True, make_ts=True):
             ax1 = fig.add_subplot(1, 1, 1)
             sns.heatmap(frame.reset_index(drop=True).T, annot=True, annot_kws={"size": 7}, cmap=sns.light_palette("blue"), cbar_kws={"label": "Meters"}, vmin=0, vmax=3.0)
             # have to reset the index and transpose for heatmap to produce correctly
-            ax1.set_title("{} Significant Wave Heights".format(wv_json.chosen_stat), size=14)
+            ax1.set_title("{} Significant Wave Heights".format(stat), size=14)
             ax1.set_ylabel("Area", size=10)
             ax1.set_xlabel("6-Hr Interval", size=10)
-            plt.show(block=False)
+            plt.savefig("wv_heat.png")
             # when block=False, multiple windows of figures can pop up when called on the terminal
     else:
         pass
@@ -57,11 +59,11 @@ def wv_viz(make_heat=True, make_ts=True):
                 ys = frame[area]
                 ax2.plot(xs, ys, marker="o", markersize=5, color=palette[color_num], label="Area {}".format(area))
                 color_num += 1
-            ax2.set_title("{} Wave Heights".format(wv_json.chosen_stat), fontsize=14)
+            ax2.set_title("{} Wave Heights".format(stat), fontsize=14)
             ax2.set_xlabel("6-Hr Interval", fontsize=12)
-            ax2.set_ylabel("Maximum Wave Height (meters)", fontsize=12)
+            ax2.set_ylabel("{} Wave Height (meters)".format(stat), fontsize=12)
             plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0, fontsize=7)
-            plt.show()
+            plt.savefig("wv_tseries.png")
     else:
         pass
 

@@ -5,7 +5,7 @@ Created on Wed Oct 18 09:51:44 2017
 @author: dalton
 """
 
-### Creating a High-Level Function Workflow for Schema and Viz ###
+### Pumps out JSON, asks for viz ###
 
 # imports
 from datetime import datetime, timedelta, timezone
@@ -16,7 +16,7 @@ import pandas as pd
 import xarray as xr
 
 # importing viz script
-import wv_viz
+#import wv_viz
 
 ## -- Schema to Ensure Output -- ##
 class LocationSchema(Schema):
@@ -83,15 +83,12 @@ def run_method(m, areas, data):
     print("Finished collecting all areas.")
     return frame
 
-# === Testing this out 10_19_17 === #
-# choosing the desired statistic to compute (Max, Min, or Mean)
-def choose_stat():
-    choice = input("Max, Min, or Mean?")
-    return choice 
-    
-stat_dict = {"Max": method_001, "Min": method_002, "Mean": method_003}
 
-chosen_stat = choose_stat()
+def choose_stat():
+    choice = input("Max, Min, Mean6h, Mean1d?")
+    stat_dict = {"Max": method_001, "Min": method_002, "Mean6h": method_003, "Mean1d": method_004}
+    return (stat_dict[choice], choice) 
+
 
 # ============================================================= #
 
@@ -100,6 +97,7 @@ ds = xr.open_dataset('/home/dalton/swan/swan.nc')
 
 # wave height xarray slice of main array
 hs = ds['hs']
+dirs = ds["dir"]
 
 # load in list of areas (collections of nodes)
 n = [np.loadtxt("/home/dalton/swan/home/brianmckenna/DUBAI/warnings/areas/wave/area.{0:0=2d}.txt".format(i)).flatten().astype(int) for i in list(range(0, 31))]
@@ -107,15 +105,13 @@ n = [np.loadtxt("/home/dalton/swan/home/brianmckenna/DUBAI/warnings/areas/wave/a
 # provides a list of areas (collections of nodes) to be used in run_method() 
 a = list(range(0, len(n)))
 
-# method
-m = stat_dict[chosen_stat]
-# if this doesn't work, go back to hardcoded
-#m = method_001
+# choose the method and stat
+chosen_method, stat = choose_stat()
 
 # the main function which will pumps out the JSON output
 def wv_json():
     """First calls on run method, which requires three positional arguments: chosen_method, areas, and data. The chosen_method argument calls on the separately defined func, choose_method(), which prompts the caller to select the method; it returns the required method. The 'areas' argument is supplied by a, defined earlier in the script, and the 'data' argument is supplied by hs, also defined earlier in the script. run_method() can then actually run with these params, and returns a DataFrame."""
-    frame = run_method(m, a, hs)
+    frame = run_method(chosen_method, a, hs)
     # forecasts
     forecasts = []
     
@@ -154,13 +150,22 @@ def wv_json():
 
 def ask_viz():
     """Asks the caller if they would like to visualize the data they have pulled, in addition to seeing just the JSON text output."""
-    response = input("Visualize data? [y]/n")
+    response = input("Visualize height data? [y]/n ")
     if response == "y":
+        # importing viz script
+        import wv_viz
         wv_viz.wv_viz()
-        print("Warning output printing and visualization complete.")
+        response2 = input("Visualize wave direction? [y]/n ")
+        if response2 == "y":
+            import wv_dir_viz
+            wv_dir_viz.wv_dir_viz()
+            print("Warning output: printed\nVisualizations: created")
+        else:
+            print("Warning output: printed\nHeight visualization complete")
     else:
         print("Warning output printing complete.")
         
 if __name__ == "__main__":
     wv_json()
     ask_viz()
+    
